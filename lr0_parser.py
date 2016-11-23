@@ -29,12 +29,12 @@ def get_table(L):
         {"#": ACCEPT},
         {"b": "s4"},
         {"c": "s5", "b": "s6"},
-        {"a": "r2", "c": "r2", "e": "r2", "b": "r2", "d": "r2", "#": "r2"},
-        {"d": "s8"},
-        {"a": "r3", "c": "r3", "e": "r3", "b": "r3", "d": "r3", "#": "r3"},
-        {"e": "s9"},
-        {"a": "r4", "c": "r4", "e": "r4", "b": "r4", "d": "r4", "#": "r4"},
         {"a": "r1", "c": "r1", "e": "r1", "b": "r1", "d": "r1", "#": "r1"},
+        {"d": "s8"},
+        {"a": "r2", "c": "r2", "e": "r2", "b": "r2", "d": "r2", "#": "r2"},
+        {"e": "s9"},
+        {"a": "r3", "c": "r3", "e": "r3", "b": "r3", "d": "r3", "#": "r3"},
+        {"a": "r0", "c": "r0", "e": "r0", "b": "r0", "d": "r0", "#": "r0"},
     ]
 
     goto = [
@@ -79,7 +79,10 @@ def get_action(action_table, status_stack, input_string):
     # 输入串的第一个字符
     char = input_string[0]
     # 获取该状态行
+    # try:
     row = action_table[status_top]
+    # except TypeError:
+        # print(type(status_top), status_top)
     # 如果遇到该输入字符没有定义动作, 那么说明是错误的输入, 返回None
     if char not in row:
         return None
@@ -92,7 +95,7 @@ def get_goto(goto_table, status_stack, left):
         return None
     return row[left]
 
-def parse(L, input_str):
+def parse(L, action_table, goto_table, input_str):
     """
     判断input_str是否符合文法L
     :param L: 文法, 产生式 [(左部, 右部), ...]
@@ -105,7 +108,7 @@ def parse(L, input_str):
     # 记录步数
     step = 0
     # 根据文法获取LR(0)分析表
-    action_table, goto_table = get_table(L)
+    # action_table, goto_table = get_table(L)
     # 状态栈
     status_stack = [0]
     # 符号栈
@@ -159,9 +162,10 @@ def parse(L, input_str):
         # 规约
         elif action_type == "r":
             # 规约使用的产生式
-            left_part, right_part = L[num - 1]  # 下标从0开始
+            left_part, right_part = L[num]  # 下标从0开始
             # 此处规约消耗的字符数
             len_right_part = len(right_part)
+            # print(left_part, right_part)
             # 去掉符号栈的相应字符, 用规约结果代替
             for i in range(len_right_part):
                 symbol_stack.pop()
@@ -186,5 +190,6 @@ def parse(L, input_str):
 
 
 if __name__ == '__main__':
-    parse(PRODUCE_EXPRESSIONS, "abbcde#")
+    action_table, goto_table = get_table(PRODUCE_EXPRESSIONS)
+    parse(PRODUCE_EXPRESSIONS, action_table, goto_table, "abbcde#")
 
