@@ -96,43 +96,41 @@ def parse(L, input_str):
     text = "%-20s%-20s%-20s" % ("状态", "符号栈", "输入字符串")
     print(text)
 
+    # 记录步数
+    step = 0
     # 根据文法获取LR(0)分析表
     action_table, goto_table = get_table(L)
     # 状态栈
     status_stack = [0]
     # 符号栈
     symbol_stack = ["#"]
-    # 动作
-    action = get_next_action(action_table, status_stack, input_str)
-    # GOTO
+
+    # goto项
     goto = None
-    # 记录步数
-    step = 1
-
-
-    text = "%-20s %-20s %-20s" % (status_stack, "".join(symbol_stack), input_str)
-    print(text)
-
-    if action is None:
-        print("出错")
-        return
-    first_time = True
 
     while True:
-        # 获取动作
 
-        if first_time:
-            # print(status_stack, symbol_stack, input_str, action, goto)
-            first_time = False
-        else:
-            action = get_next_action(action_table, status_stack, input_str)
+        step += 1
+
+        # 获取动作
+        action = get_next_action(action_table, status_stack, input_str)
 
         if action is None:
             print("出错")
             return
+        # 解析该动作
         action_type, num = parse_action(action)
 
+        text = "%-20s %-20s %-20s" % (status_stack, "".join(symbol_stack), input_str)
+        print(text, action)
+        # print("step", step, text, action)
+
+        # 这下面开始为下一个步骤表格填充数据
+
+        # 移进
         if action_type == "s":
+            # 只有r的情况有goto
+            goto = None
             # 状态栈加入这个状态
             status_stack.append(num)
             # 符号栈加入第一个符号
@@ -140,35 +138,34 @@ def parse(L, input_str):
             # 输入串截断
             if len(input_str) > 1:
                 input_str = input_str[1:]
-
+        # 接受
         elif action_type == ACCEPT:
+            goto = None
             print("Parse finished: Accepted!")
             return
+        # 规约
         elif action_type == "r":
-            # input("r step")
-            step += 1
-            # 规约动作
             # 规约使用的产生式
-            left_part, right_part = L[num - 1]
+            left_part, right_part = L[num - 1]  # 下标从0开始
+            # 此处规约消耗的字符数
             len_right_part = len(right_part)
             # 去掉符号栈的相应字符, 用规约结果代替
             for i in range(len_right_part):
                 symbol_stack.pop()
             symbol_stack.append(left_part)
-            # print("--------->", symbol_stack)
-            # 状态栈同时去掉相应个数个状态
+
+            # 同时去掉状态栈相应个数个状态
             for i in range(len_right_part):
                 status_stack.pop()
-            row = goto_table[status_stack[-1]]
 
+            # 获取goto表中的内容
+
+            row = goto_table[status_stack[-1]]
             if left_part not in row:
                 print("ERROR@Char:", left_part)
                 return
             goto = row[left_part]
             status_stack.append(goto)
-
-        text = "%-20s %-20s %-20s" % (status_stack, "".join(symbol_stack), input_str)
-        print(text)
 
 
 if __name__ == '__main__':
