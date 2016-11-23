@@ -1,12 +1,14 @@
 # coding=utf-8
-__author__ = 'rmallfly'
+__author__ = 'smallfly'
 
 """
 输出结果
 """
 
+# 常量
 ACCEPT = "A"
 
+# 测试用例
 PRODUCE_EXPRESSIONS = [
     ("S", "aAcBe"),
     ("A", "b"),
@@ -52,8 +54,12 @@ def get_table(L):
     return [action, goto]
 
 def parse_action(action):
+    """
+
+    :param action: 形如 s1 r2 A(接受) 之类的字符串
+    :return: (类型, 数字)
+    """
     type_ = action[0]
-    # print("->", action[1:])
     try:
         num = int(action[1: ])
     except ValueError as e:
@@ -61,54 +67,59 @@ def parse_action(action):
     return (type_, num)
 
 def get_next_action(action_table, status_stack, input_string):
+    """
+    获取下一个动作
+    :param action_table: 动作矩阵
+    :param status_stack: 状态栈
+    :param input_string: 输入串
+    :return: 动作 | None
+    """
+    # 获取状态栈顶部的状态
     status_top = status_stack[-1]
-    # print("Status Top is:", status_top)
     # 输入串的第一个字符
     char = input_string[0]
-    # print("Char is:", char)
-    # 和该状态有关的行
+    # 获取该状态行
     row = action_table[status_top]
+    # 如果遇到该输入字符没有定义动作, 那么说明是错误的输入, 返回None
     if char not in row:
         return None
-    # try:
     action = row[char]
-    # except TypeError as e:
-    #     print(row)
-    #     print(type(row))
-    #     input()
     return action
 
 def parse(L, input_str):
+    """
+    判断input_str是否符合文法L
+    :param L: 文法, 产生式 [(左部, 右部), ...]
+    :param input_str: 输入串
+    :return:
+    """
+    text = "%-20s%-20s%-20s" % ("状态", "符号栈", "输入字符串")
+    print(text)
 
+    # 根据文法获取LR(0)分析表
     action_table, goto_table = get_table(L)
     # 状态栈
     status_stack = [0]
     # 符号栈
     symbol_stack = ["#"]
     # 动作
-    action = None
+    action = get_next_action(action_table, status_stack, input_str)
     # GOTO
     goto = None
-
+    # 记录步数
     step = 1
 
-    break_condition = False
 
-    action = get_next_action(action_table, status_stack, input_str)
-    # print(status_stack, symbol_stack, input_str, action, goto)
-    print(status_stack, "".join(symbol_stack), input_str)
+    text = "%-20s %-20s %-20s" % (status_stack, "".join(symbol_stack), input_str)
+    print(text)
 
     if action is None:
         print("出错")
         return
     first_time = True
 
-    while not break_condition:
+    while True:
         # 获取动作
-        # action = get_next_action(action_table, status_stack, input_str)
-        # if action is None:
-        #     print("出错")
-        #     return
 
         if first_time:
             # print(status_stack, symbol_stack, input_str, action, goto)
@@ -132,7 +143,6 @@ def parse(L, input_str):
 
         elif action_type == ACCEPT:
             print("Parse finished: Accepted!")
-            break_condition = True
             return
         elif action_type == "r":
             # input("r step")
@@ -142,10 +152,6 @@ def parse(L, input_str):
             left_part, right_part = L[num - 1]
             len_right_part = len(right_part)
             # 去掉符号栈的相应字符, 用规约结果代替
-            # input_str = input_str[len_right_part:]
-            # print("---------->", input_str)
-            # input_str += left_part
-            # symbol_stack
             for i in range(len_right_part):
                 symbol_stack.pop()
             symbol_stack.append(left_part)
@@ -154,20 +160,15 @@ def parse(L, input_str):
             for i in range(len_right_part):
                 status_stack.pop()
             row = goto_table[status_stack[-1]]
-            # print("-------->", row)
-            # print(L[num])
+
             if left_part not in row:
                 print("ERROR@Char:", left_part)
                 return
             goto = row[left_part]
             status_stack.append(goto)
-        # else:
-        #     print(action_type)
-        #     input()
 
-        # print(status_stack, symbol_stack, input_str, action, goto)
-        print(status_stack, "".join(symbol_stack), input_str)
-        # print(status_stack, symbol_stack, input_str)
+        text = "%-20s %-20s %-20s" % (status_stack, "".join(symbol_stack), input_str)
+        print(text)
 
 
 if __name__ == '__main__':
