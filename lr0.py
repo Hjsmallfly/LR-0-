@@ -9,7 +9,7 @@ def main():
     # print(vn, vt, rules)
     # print(rules)
     action, goto = reader.read_output("output.txt", vn, vt)
-    print(goto)
+    # print(goto)
     lr0_parser.parse(rules, action, goto,"ad#")
 
 if __name__ == '__main__':

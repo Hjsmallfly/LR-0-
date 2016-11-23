@@ -132,7 +132,7 @@ def parse(L, action_table, goto_table, input_str):
 
         # 在此处补充一下goto
         if action_type == 'r':
-            left_part, right_part = L[num - 1]  # 下标从0开始
+            left_part, right_part = L[num]  # 下标从0开始
             tmp_stack = [ status_stack[len(status_stack) - len(right_part) - 1] ]
             goto = get_goto(goto_table, tmp_stack, left_part)
         else:
