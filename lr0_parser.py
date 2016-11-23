@@ -40,15 +40,15 @@ def get_table(L):
     goto = [
         #0
         {"S": 1},
-        {},
+        dict(),
         {"A": 3},
-        {},
-        {},
+        dict(),
+        dict(),
         {"B": 7},
-        {},
-        {},
-        {},
-        {},
+        dict(),
+        dict(),
+        dict(),
+        dict(),
     ]
 
     return [action, goto]
@@ -66,7 +66,7 @@ def parse_action(action):
         num = 0
     return (type_, num)
 
-def get_next_action(action_table, status_stack, input_string):
+def get_action(action_table, status_stack, input_string):
     """
     获取下一个动作
     :param action_table: 动作矩阵
@@ -86,6 +86,12 @@ def get_next_action(action_table, status_stack, input_string):
     action = row[char]
     return action
 
+def get_goto(goto_table, status_stack, left):
+    row = goto_table[status_stack[-1]]
+    if left not in row:
+        return None
+    return row[left]
+
 def parse(L, input_str):
     """
     判断input_str是否符合文法L
@@ -93,7 +99,7 @@ def parse(L, input_str):
     :param input_str: 输入串
     :return:
     """
-    text = "%-20s%-20s%-20s" % ("状态", "符号栈", "输入字符串")
+    text = "%-23s %-20s %-20s %-27s %-20s" % ("状态", "符号栈", "输入字符串", "action", "goto")
     print(text)
 
     # 记录步数
@@ -113,7 +119,7 @@ def parse(L, input_str):
         step += 1
 
         # 获取动作
-        action = get_next_action(action_table, status_stack, input_str)
+        action = get_action(action_table, status_stack, input_str)
 
         if action is None:
             print("出错")
@@ -121,9 +127,16 @@ def parse(L, input_str):
         # 解析该动作
         action_type, num = parse_action(action)
 
-        text = "%-20s %-20s %-20s" % (status_stack, "".join(symbol_stack), input_str)
-        print(text, action)
-        # print("step", step, text, action)
+        # 在此处补充一下goto
+        if action_type == 'r':
+            left_part, right_part = L[num - 1]  # 下标从0开始
+            tmp_stack = [ status_stack[len(status_stack) - len(right_part) - 1] ]
+            goto = get_goto(goto_table, tmp_stack, left_part)
+        else:
+            goto = ""
+
+        text = "%-25s %-25s %-25s %-25s %-25s" % (status_stack, "".join(symbol_stack), input_str, action, goto)
+        print(text)
 
         # 这下面开始为下一个步骤表格填充数据
 
@@ -159,13 +172,17 @@ def parse(L, input_str):
                 status_stack.pop()
 
             # 获取goto表中的内容
-
-            row = goto_table[status_stack[-1]]
-            if left_part not in row:
-                print("ERROR@Char:", left_part)
+            goto = get_goto(goto_table, status_stack, left_part)
+            if goto is None:
+                print("出错")
                 return
-            goto = row[left_part]
+            # row = goto_table[status_stack[-1]]
+            # if left_part not in row:
+            #     print("ERROR@Char:", left_part)
+            #     return
+            # goto = row[left_part]
             status_stack.append(goto)
+
 
 
 if __name__ == '__main__':
