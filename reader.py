@@ -5,10 +5,11 @@ __author__ = 'smallfly'
 读取文件
 """
 
-def read_input(filename):
+def read_input(filename, sep="~"):
     """
     从文件中读取非终结符, 终结符, 规则
     :param filename: 文件名
+    :param sep: 分隔符
     :return: 非终结符, 终结符, 规则
     """
     rules = []
@@ -19,12 +20,12 @@ def read_input(filename):
             elif i == 2:
                 vt_str = line.strip()
             else:
-                rules.append(line.strip().split(","))
-    vn = vn_str.split(",")
-    vt = vt_str.split(",")
+                rules.append(line.strip().split(sep))
+    vn = vn_str.split(sep)
+    vt = vt_str.split(sep)
     return vn, vt, rules
 
-def read_output(filename, vn, vt):
+def read_output(filename, vn, vt, sep="~"):
     """
     从文件中读取出action, goto 表
     :param filename:
@@ -36,9 +37,9 @@ def read_output(filename, vn, vt):
     goto = []
     with open(filename) as f:
         for line in f:
-            chars = line.strip().split(",")
+            chars = list(map(lambda x: x.strip(), line.strip().split(sep)))
             action_chars = chars[: len(chars) - len(vn)]
-            todo_chars = chars[len(chars) - len(vn): -1]    # 每行以,结尾
+            todo_chars = chars[len(chars) - len(vn): -1]    # 每行以sep结尾
             action_row = dict()
             goto_row = dict()
 
@@ -60,8 +61,8 @@ def read_output(filename, vn, vt):
 
 
 if __name__ == '__main__':
-    vn, vt, rules = read_input("input.txt")
-    action, goto = read_output("output.txt", vn, vt)
+    vn, vt, rules = read_input("input.txt", ",")
+    action, goto = read_output("output.txt", vn, vt, ",")
     print(action)
     print(goto)
 
