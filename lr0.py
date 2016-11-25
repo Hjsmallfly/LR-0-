@@ -2,7 +2,7 @@
 __author__ = 'smallfly'
 
 import reader
-import lr0_parser
+import lr0_analyser
 import os
 
 def parse(input_file, output_file, text):
@@ -22,7 +22,7 @@ def parse(input_file, output_file, text):
     print()
     action, goto = reader.read_output(output_file, vn, vt, "~")
     # 显示解析过程
-    lr0_parser.parse(rules, action, goto, text)
+    lr0_analyser.analyse(rules, action, goto, text)
 
 def main():
     # input_file 是存储了文法的文件, 默认使用input1.txt这个文件

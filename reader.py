@@ -61,8 +61,5 @@ def read_output(filename, vn, vt, sep="~"):
 
 
 if __name__ == '__main__':
-    vn, vt, rules = read_input("input.txt", ",")
-    action, goto = read_output("output.txt", vn, vt, ",")
-    print(action)
-    print(goto)
+    pass
 

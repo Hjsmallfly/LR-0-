@@ -95,7 +95,7 @@ def get_goto(goto_table, status_stack, left):
         return None
     return row[left]
 
-def parse(L, action_table, goto_table, input_str):
+def analyse(L, action_table, goto_table, input_str):
     """
     判断input_str是否符合文法L
     :param L: 文法, 产生式 [(左部, 右部), ...]
@@ -125,7 +125,7 @@ def parse(L, action_table, goto_table, input_str):
         action = get_action(action_table, status_stack, input_str)
 
         if action is None:
-            print("出错")
+            print("Error")
             return
         # 解析该动作
         action_type, num = parse_action(action)
@@ -157,7 +157,7 @@ def parse(L, action_table, goto_table, input_str):
         # 接受
         elif action_type == ACCEPT:
             goto = None
-            print("Parse finished: Accepted!")
+            print("Analysis finished: Accepted!")
             return
         # 规约
         elif action_type == "r":
@@ -178,7 +178,7 @@ def parse(L, action_table, goto_table, input_str):
             # 获取goto表中的内容
             goto = get_goto(goto_table, status_stack, left_part)
             if goto is None:
-                print("出错")
+                print("Error")
                 return
             # row = goto_table[status_stack[-1]]
             # if left_part not in row:
@@ -191,5 +191,5 @@ def parse(L, action_table, goto_table, input_str):
 
 if __name__ == '__main__':
     action_table, goto_table = get_table(PRODUCE_EXPRESSIONS)
-    parse(PRODUCE_EXPRESSIONS, action_table, goto_table, "abbcde#")
+    analyse(PRODUCE_EXPRESSIONS, action_table, goto_table, "abbcde#")
 
